@@ -1,3 +1,4 @@
+# from collections.abc import Iterable
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -6,7 +7,8 @@ from datetime import datetime
 
 from django.utils import timezone
 
-from django.db.models.signals import post_save   #signalas used to use an obj for multipurpose
+from django.db.models.signals import post_save  
+ #signalas used to use an obj for multipurpose
 
 # Create your models here.
 class UserProfile(models.Model):
@@ -49,9 +51,15 @@ class Stories(models.Model):
     title=models.CharField(max_length=200)
     post_image=models.ImageField(upload_to="stories",null=True,blank=True)
     created_date=models.DateTimeField(auto_now_add=True)
-    exp=created_date + timezone.timedelta(days=1)
+    # exp=created_date + timezone.timedelta(days=1)
     expiry_date=models.DateTimeField()
     
 
     def __str__(self):
         return self.title
+    
+    def create_profile(sender,created,instance,**kwargs):
+        if created:
+            UserProfile.objects.create(user=instance)
+
+    post_save.connect(create_profile,sender=User)
